@@ -39,7 +39,7 @@ else
 fi
 
 SHELL_HISTORY=~/.dropshell_history
-DU_OPT="-q"
+DU_OPT="-p"
 BIN_DEPS="id $READLINK ls basename ls pwd cut"
 VERSION="0.2"
 

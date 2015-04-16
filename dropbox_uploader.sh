@@ -512,6 +512,24 @@ function db_simple_upload_file
     fi
 }
 
+
+function print_progress_bar
+{
+  percentage="$1"
+  max=80
+  filled=$(expr $percentage \* $max / 100)
+  print "|"
+  for i in $(seq 1 $filled)
+  do
+    print "="
+  done
+  for i in $(seq $(expr $filled + 1) $max)
+  do
+    print "."
+  done
+  print "| (${percentage}%)\r"
+}
+
 #Chunked file upload
 #$1 = Local source file
 #$2 = Remote destination file
@@ -531,6 +549,8 @@ function db_chunked_upload_file
     #Uploading chunks...
     while ([[ $OFFSET != $FILE_SIZE ]]); do
 
+        print_progress_bar "$(expr $OFFSET \* 100 / $FILE_SIZE)"
+
         let OFFSET_MB=$OFFSET/1024/1024
 
         #Create the chunk
@@ -547,7 +567,7 @@ function db_chunked_upload_file
 
         #Check
         if grep -q "^HTTP/1.1 200 OK" "$RESPONSE_FILE"; then
-            print "."
+            #print "."
             UPLOAD_ERROR=0
             UPLOAD_ID=$(sed -n 's/.*"upload_id": *"*\([^"]*\)"*.*/\1/p' "$RESPONSE_FILE")
             OFFSET=$(sed -n 's/.*"offset": *\([^}]*\).*/\1/p' "$RESPONSE_FILE")
@@ -594,7 +614,8 @@ function db_chunked_upload_file
 
     done
 
-    print " DONE\n"
+    #print " DONE\n"
+    print_progress_bar "100"
 }
 
 #Directory upload
